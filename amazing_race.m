@@ -40,17 +40,17 @@ figure; imshow(imNew);
 
 CC = bwconncomp(imNew); 
 stats = regionprops(CC,'Image','PixelList');
-
-figure;
-for iter = 4 : size(stats,1)
-    APix = stats(iter).PixelList;
-    % find vertical strokes
-    Vstr = vert_stroke(APix);
-    % find horizontal strokes
-    Hstr = horz_stroke(APix);
-    % find diagonal strokes
-    Dstr = diag_stroke(APix);
-end
+% 
+% figure;
+% for iter = 4 : size(stats,1)
+%     APix = stats(iter).PixelList;
+%     % find vertical strokes
+%     Vstr = vert_stroke(APix);
+%     % find horizontal strokes
+%     Hstr = horz_stroke(APix);
+%     % find diagonal strokes
+%     Dstr = diag_stroke(APix);
+% end
 
 
 % 
@@ -64,47 +64,47 @@ end
 
 end
 
-function cntr = vert_stroke(pixList)
-cntr = 0; continueCtr = 0;
-for iter = 1 : size(pixList,1) - 1
-    if abs(pixList(iter+1,2) - pixList(iter,2)) == 1 && ...
-            pixList(iter+1,1) == pixList(iter,1)
-        continueCtr = continueCtr + 1;
-    else
-        if continueCtr >= 4
-            cntr = cntr + 1;
-        end
-        continueCtr = 0;
-    end
-end
-end
-
-function cntr = horz_stroke(pixList)
-cntr = 0; continueCtr = 0;
-for iter = 1 : size(pixList,1) - 1
-    if abs(pixList(iter+1,1) - pixList(iter,1)) == 1 && ...
-            pixList(iter+1,2) == pixList(iter,2)
-        continueCtr = continueCtr + 1;
-    else
-        if continueCtr >= 4
-            cntr = cntr + 1;
-        end
-        continueCtr = 0;
-    end
-end
-end
-
-function cntr = diag_stroke(pixList)
-cntr = 0; continueCtr = 0;
-for iter = 1 : size(pixList,1) - 1
-    if abs(pixList(iter+1,2) - pixList(iter,2)) == 1 && ...
-            abs(pixList(iter+1,1) - pixList(iter,1)) == 1
-        continueCtr = continueCtr + 1;
-    else
-        if continueCtr >= 4
-            cntr = cntr + 1;
-        end
-        continueCtr = 0;
-    end
-end
-end
+% function cntr = vert_stroke(pixList)
+% cntr = 0; continueCtr = 0;
+% for iter = 1 : size(pixList,1) - 1
+%     if abs(pixList(iter+1,2) - pixList(iter,2)) == 1 && ...
+%             pixList(iter+1,1) == pixList(iter,1)
+%         continueCtr = continueCtr + 1;
+%     else
+%         if continueCtr >= 4
+%             cntr = cntr + 1;
+%         end
+%         continueCtr = 0;
+%     end
+% end
+% end
+% 
+% function cntr = horz_stroke(pixList)
+% cntr = 0; continueCtr = 0;
+% for iter = 1 : size(pixList,1) - 1
+%     if abs(pixList(iter+1,1) - pixList(iter,1)) == 1 && ...
+%             pixList(iter+1,2) == pixList(iter,2)
+%         continueCtr = continueCtr + 1;
+%     else
+%         if continueCtr >= 4
+%             cntr = cntr + 1;
+%         end
+%         continueCtr = 0;
+%     end
+% end
+% end
+% 
+% function cntr = diag_stroke(pixList)
+% cntr = 0; continueCtr = 0;
+% for iter = 1 : size(pixList,1) - 1
+%     if abs(pixList(iter+1,2) - pixList(iter,2)) == 1 && ...
+%             abs(pixList(iter+1,1) - pixList(iter,1)) == 1
+%         continueCtr = continueCtr + 1;
+%     else
+%         if continueCtr >= 4
+%             cntr = cntr + 1;
+%         end
+%         continueCtr = 0;
+%     end
+% end
+% end
