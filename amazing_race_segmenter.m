@@ -1,18 +1,17 @@
-function amazing_race_segmenter(imName)
-close all
+function cropped_image = amazing_race_segmenter(imName)
 % read in file
 im = imread(imName);
 
 % crop image
-imCrop = im(321:359,:,:);
+imCrop = im(323:356,144:500,:);
 
 finalSeg = im2bw(imCrop,graythresh(imCrop)*1.5);
-skelIm = bwmorph(finalSeg,'skel');
+cropped_image = bwmorph(finalSeg,'skel');
 
 % imCrop(:,:,1) = double(imCrop(:,:,1)).*skelIm;
 % imCrop(:,:,2) = double(imCrop(:,:,2)).*skelIm;
 % imCrop(:,:,3) = double(imCrop(:,:,3)).*skelIm;
-imshow(skelIm);
+% imshow(skelIm);
 
 % IMPORTANT NOTE: uncomment/add code about removal of small noisy components
 
