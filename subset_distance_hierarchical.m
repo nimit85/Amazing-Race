@@ -12,9 +12,9 @@ pkg load image
 pkg load statistics
 
 components = {};
-for f = 1:size(image_list)(2)
+for f = 1:size(image_list)(1)
 %% Crop the image
-  components{f} = amazing_race_segmenter( ["../Images/" files{f}]  );
+  components{f} = amazing_race_segmenter( image_list{f}  );
 end
 
 %% Cluster the images

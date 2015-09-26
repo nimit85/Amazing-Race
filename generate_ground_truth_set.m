@@ -14,14 +14,15 @@ function generate_ground_truth_set( test_directory )
 	 if ( exist ( truth_file ) )
 	   load ( truth_file );
 	 end
+
+	 clustered_images
+	 next_image = size(clustered_images)(2) + 1
 	 
          files = readdir(test_directory);
          for f = size(files)(1):-1:1
              if ( size ( regexp(files{f}, "screenshot.*\.tiff") )(2)  == 0 )
                 files(f) = "";
              else
-		 size ( regexp(files{f}, "screenshot.*\.tiff") )(2)
-		 files{f}
                  files{f} = [test_directory files{f}];
              end
          end
@@ -45,9 +46,7 @@ function generate_ground_truth_set( test_directory )
 	     index = input ( "Insert the community number for image: \
 " );
 
-	    
-	     if ( index )
-		
+	     if ( index )		
 	       # Manual break if the corpus is too big
 	       if ( index == 0 )
 		 break;
@@ -59,12 +58,15 @@ function generate_ground_truth_set( test_directory )
 		 ground_truth{index} = {};
 	       end
 	       ground_truth{index} = {ground_truth{index} files{f}};
-	       clustered_images = {clustered_images files{f}};
+	       clustered_images{next_image} = files{f};
+	       next_image = next_image + 1;
 	     else 
 		  break;
 	     end
 	 end
 
-	 #Saves when done
-	 save truth_file ground_truth;
+	 #Saves when done - DUMB MATLAB/OCTAVE doesn't allow variable
+	 #file names so we have to do it this way.
+	 save_command = sprintf("save %s ground_truth clustered_images", truth_file);
+	 eval ( save_command );
 end

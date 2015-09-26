@@ -7,7 +7,7 @@ function clusters = get_level ( start_elements, link_tree, num_clusters )
     clusters{i} = {start_elements{i}};
   end
 
-  for i = 1:start_elements-num_clusters
+  for i = 1:num_rows-num_clusters
     clusters{next_ind} = {clusters{link_tree(i, 1)} clusters{link_tree(i, 2)}};
     clusters{link_tree(i, 1)} = {};
     clusters{link_tree(i, 2)} = {};

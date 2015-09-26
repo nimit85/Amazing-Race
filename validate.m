@@ -19,11 +19,10 @@ function similarity_score = validate( cluster_function, \
 	 # This format can change if we want it to though
 	 files = readdir(test_directory);
 	 for f = size(files)(1):-1:1
-	     if ( size ( regexp(files(f), "screenshot.*\.tiff") )(2) \
-		  == 0 )
+	     if ( size ( regexp(files{f}, "screenshot.*\.tiff") )(2) == 0 )
 		files(f) = "";
 	     else
-		 files{f} = [test_directory files{f}]
+		 files{f} = [test_directory files{f}];
 	     end
 	 end
 	 
@@ -34,5 +33,5 @@ function similarity_score = validate( cluster_function, \
 	 load ( [test_directory "ground_truth.mat"] );
 
 	 #Return the similarity measure
-	 return feval ( similarity_function, ground_truth, detected );
+	 similarity_score =  feval ( similarity_function, ground_truth, detected );
 end 

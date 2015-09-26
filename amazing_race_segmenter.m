@@ -35,11 +35,6 @@ bwskel = bwmorph(finalSeg,'skel');
 
 CC = bwconncomp(bwskel);
 
-% imCrop(:,:,1) = double(imCrop(:,:,1)).*skelIm;
-% imCrop(:,:,2) = double(imCrop(:,:,2)).*skelIm;
-% imCrop(:,:,3) = double(imCrop(:,:,3)).*skelIm;
-% imshow(skelIm);
-
 % IMPORTANT NOTE: uncomment/add code about removal of small noisy components
 
 markDel = zeros(CC.NumObjects, 1);
