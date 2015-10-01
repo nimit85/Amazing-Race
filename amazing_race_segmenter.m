@@ -3,31 +3,35 @@ function cropped_image = amazing_race_segmenter(imName)
 im = imread(imName);
 
 %Line where the capital letters of the names should top out at
-top_row_ceil = 1;
+% top_row_ceil = 1;
 %Line where the capital letters of the team names sit
 top_row_floor = 12;
 
-bottom_row_ceil_lower_case = 25;
-bottom_row_ceil_upper_case = 22;
-bottom_row_floor = 34;
-
-low_size_threshold = 15;
+% bottom_row_ceil_lower_case = 25;
+% bottom_row_ceil_upper_case = 22;
+% bottom_row_floor = 34;
+% low_size_threshold = 15;
 
 % crop image
-%imCrop = imfilter ( im(323:356,144:500,:), fspecial ( 'unsharp' ) );
+% imCrop = imfilter (im(323:356,144:500,:), fspecial ( 'unsharp' ) );
 imCrop = im(323:356,144:500,:);
 
-% Characters are consistently found on the same 2 lines. The bottom of the bottom line 
-% corresponds with the bottom on the image. The top of the top line is the top of the image. 
-% There should be a space in between the lines. This FORCES that space (any white in the space
-% was noise anyway)  
-imCrop (top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:size(imCrop)(2), 1) = zeros(bottom_row_ceil_upper_case - 1 - top_row_floor, size(imCrop)(2));
-imCrop (top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:size(imCrop)(2), 2) = zeros(bottom_row_ceil_upper_case - 1 - top_row_floor, size(imCrop)(2));
-imCrop (top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:size(imCrop)(2), 3) = zeros(bottom_row_ceil_upper_case - 1 - top_row_floor, size(imCrop)(2));
+% Characters are consistently found on the same 2 lines. The bottom of
+% the bottom line corresponds with the bottom on the image. The top of the
+% top line is the top of the image. There should be a space in between the
+% lines. This FORCES that space (any white in the space was noise anyway)
 
-if ( sum ( imCrop ) == 0 )
-  cropped_image = zeros( size(imCrop)(1), size(imCrop)(2) );
-  return
+[s1, s2] = size(imCrop);
+imCrop(top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:s2, 1) = ...
+    zeros(bottom_row_ceil_upper_case - 1 - top_row_floor,s2);
+imCrop(top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:s2, 2) = ...
+    zeros(bottom_row_ceil_upper_case - 1 - top_row_floor, s2);
+imCrop(top_row_floor + 1:bottom_row_ceil_upper_case - 1, 1:s2, 3) = ...
+    zeros(bottom_row_ceil_upper_case - 1 - top_row_floor, s2);
+
+if sum(imCrop) == 0
+    cropped_image = zeros(s1, s2);
+    return
 end
 
 finalSeg = im2bw(imCrop,graythresh(imCrop)*1.5);
@@ -44,43 +48,46 @@ for iter = 1:CC.NumObjects
     max_col = 0;
     min_row = CC.ImageSize(1);
     max_row = 0;
-
+    
     c_size = size(CC.PixelIdxList{iter});
-
+    
     for i = 1:c_size(1)
         pix = CC.PixelIdxList{iter}(i);
-        row = mod ( ( pix - 1 ), CC.ImageSize(1) ) + 1;
-        col = floor ( ( pix - 1 ) / CC.ImageSize(1) ) + 1;
-
+        row = mod((pix - 1 ), CC.ImageSize(1) ) + 1;
+        col = floor((pix - 1 ) / CC.ImageSize(1) ) + 1;
+        
         if row < min_row
             min_row = row;
         end
-
+        
         if row > max_row
-	    max_row = row;
+            max_row = row;
         end
-
+        
         if col < min_col
-    	    min_col = col;
+            min_col = col;
         end
-
+        
         if col > max_col
-	    max_col = col;
+            max_col = col;
         end
     end
     
-	%Only keep capital name characters, capitol lower line characters, and lower case lower line characters
-	  if ( !( ( min_row < top_row_ceil + 3 ) && ( max_row > top_row_floor - 3)) && !( ( (min_row < bottom_row_ceil_upper_case + 3) || ( min_row < bottom_row_ceil_lower_case + 3) ) && (max_row > bottom_row_floor - 3) ))
-      markDel(iter) = 1;
-    end    
-
-	  %Remove components that are too wide (might loose a lot of
-	  %characters)
-	  %But comparison should be able to deal with a lot of this
-	  %kind of noise
-	  if ( max_col - min_col > 25 )
-	     markDel(iter) = 1;
-	     end
+    % Only keep capital name characters, capitol lower line characters, 
+    % and lower case lower line characters
+    if ( ~((min_row < top_row_ceil + 3 ) && ( max_row > top_row_floor - 3)) ...
+            && ~(((min_row < bottom_row_ceil_upper_case + 3) || ( min_row < ...
+            bottom_row_ceil_lower_case + 3) ) && (max_row > bottom_row_floor - 3)))
+        markDel(iter) = 1;
+    end
+    
+    %Remove components that are too wide (might loose a lot of
+    %characters)
+    %But comparison should be able to deal with a lot of this
+    %kind of noise
+    if max_col - min_col > 25
+        markDel(iter) = 1;
+    end
 end
 
 CC.PixelIdxList(markDel == 1) = [];
@@ -100,7 +107,7 @@ cropped_image(newPixList) = 1;
 % % get the connected components
 % CC = bwconncomp(P);
 % objs = CC.NumObjects;
-% 
+%
 % % remove small components - these are either noise or disconnected
 % % components
 % markDel = zeros(objs,1);
@@ -110,10 +117,10 @@ cropped_image(newPixList) = 1;
 %         markDel(iter) = 1;
 %     end
 % end
-% 
+%
 % CC.PixelIdxList(markDel == 1) = [];
 % CC.NumObjects = objs - sum(markDel);
-% 
+%
 % newPixList = [];
 % imNew = zeros(CC.ImageSize);
 % % recreate the image
@@ -121,10 +128,10 @@ cropped_image(newPixList) = 1;
 %     newPixList = [newPixList; CC.PixelIdxList{iter}];
 % end
 % imNew(newPixList) = 1;
-% 
+%
 % % get only the skeleton
 % imNew = bwmorph(imNew,'skel');
-% 
+%
 % [vertStrk, horzStrk] = strokeCalc(imNew);
 
 % L = bwlabel(imNew);

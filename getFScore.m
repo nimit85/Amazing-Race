@@ -1,4 +1,4 @@
-function finAns = getScore(clustAsgn, gtAsgn)
+function finAns = getFScore(clustAsgn,gtAsgn)
 % this function calculates the F-score
 % input - 2 cell arrays, output - fscore value 
 % clustAsgn is the cluster assignments returned by the clustering algorithm
@@ -25,9 +25,7 @@ for i = 1 : size(clustAsgn,1)
     end
 end
 
-
 % Murkes variant of the Hungarian algorithm, give it some high penalty for
 % failing to complete a match. answer is in finAns
-[finAns, notAsgn1, notAsgn2] = assignDetectionsToTracks(fscore,10000); 
-
+[finAns,notAsgn1,notAsgn2] = assignDetectionsToTracks(fscore,10000);
 end
