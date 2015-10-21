@@ -1,16 +1,25 @@
-function finAns = getFScore(clustAsgn,gtAsgn)
 % this function calculates the F-score
-% input - 2 cell arrays, output - fscore value 
+% INPUT: 2 integer arrays, output - matches based on weighted bipartite
+% matching aka Hungarian algorithm
 % clustAsgn is the cluster assignments returned by the clustering algorithm
 % gtAsgn is the cluster assignments of the ground truth
+
+function finFscore = getFScore(gtAsgn,clustAsgn)
 
 % run for all possible pair-wise combinations
 fscore = zeros(size(clustAsgn,1),size(gtAsgn,1));
 for i = 1 : size(clustAsgn,1)
-    thisClust = clustAsgn{i};
+    thisClust = find(clustAsgn == i);
+    if isempty(thisClust)
+        fscore(i,:) = 0;
+        continue;
+    end
     for j = 1 : size(gtAsgn,1)
-        thisGt = gtAsgn{j};
-    
+        thisGt = find(gtAsgn == j);
+        if isempty(thisGt)
+            fscore(i,j) = 0;
+            continue;
+        end
         % true positives, false positives, false negatives
         tp = numel(intersect(thisClust, thisGt));
         fp = size(thisClust,1) - tp;
@@ -21,11 +30,22 @@ for i = 1 : size(clustAsgn,1)
         recall = tp/(tp+fn);
     
         % F-score
-        fscore(i,j) = 2*precision*recall/(precision+recall);
+        if precision ~= 0 && recall ~= 0
+            fscore(i,j) = 2*precision*recall/(precision+recall);
+        else
+            fscore(i,j) = 0;
+        end
     end
 end
 
 % Murkes variant of the Hungarian algorithm, give it some high penalty for
-% failing to complete a match. answer is in finAns
-[finAns,notAsgn1,notAsgn2] = assignDetectionsToTracks(fscore,10000);
+% failing to complete a match. Matching is stored in finAns
+[finAns,~,~] = assignDetectionsToTracks(fscore,10000);
+
+% calculate mean fscore for the prescribed matching
+finFscore = 0;
+for iter = 1 : size(finAns,1)
+    finFscore = finFscore + fscore(finAns(iter,1),finAns(iter,2));
+end
+finFscore = finFscore/size(finAns,1);
 end
