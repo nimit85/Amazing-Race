@@ -1,0 +1,87 @@
+\documentclass[10pt, twoside]{article}
+
+\usepackage{float}
+\usepackage{graphicx}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Project Description : 
+%    Background information, goal for project
+% No technical details. Explain to someone
+% who has never heard of this project and 
+% does not know about any particulars.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Project Description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Currently Available Solutions:
+%     Self Explanatory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Currently Available Solutions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Module Design:
+%     High level technical details, flow of
+% information and steps taken to run/use any
+% product.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Module Design}
+
+\subsection{Feature Extraction System}
+\label{section:FES}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{FeatureExtractionModule}
+  \caption{The Amazing Race Feature Extraction Module}
+  \label{fig:feature_extraction_module}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{ExtractionDetails}
+  \caption{A More Detailed Look At The Amazing Race Feature Extraction Module}
+  \label{fig:feature_extraction_module_details}
+\end{figure}
+
+\subsection{Prediction System}
+\label{section:PS}
+Currently undesigned. See Fig.~\ref{fig:prediction_module} for an 
+extremely simple first pass.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{PredictionModule}
+  \caption{Validation Module Flow}
+  \label{fig:prediction_module}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code Design: 
+%     Low level description - specific
+% functions and coupling between segments.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Code Design}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document Information: 
+%    Metadata, revision history, indices, 
+% glossary, etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Document Information}
+
+\subsection{Glossary}
+\begin{itemize}
+\item[FEM (Section ~\ref{section:FES}) :] Feature Extraction Module
+\item[FVM (Section ~\ref{section:FES}) :] Feature Validation Module
+\item[PM (Section ~\ref{section:PS}) :] Prediction Module
+\end{itemize}
+
+\subsection{Document History}
+\begin{tabular}{|p{0.15\textwidth}|p{0.25\textwidth}|p{0.5\textwidth}|p{0.1\textwidth}|} \hline
+Date & Authors & Notes & Version \\ \hline
+2015-10-22 & James Thompson & Recovered information (lost
+due to github commit error) & 0.0.2 \\ \hline
+\end{tabular}
+
+\end{document}
