@@ -13,7 +13,7 @@
 % does not know about any particulars.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Project Description}
-The Amazing Race is a popular reality TV show currently in its 27^{th} season on
+The Amazing Race is a popular reality TV show currently in its $27^{th}$ season on
 CBS where contestants compete in physical and mental challenges while travelling
 around the world. Teams compete in stages. Each stage typically consists of two
 rounds of challenges. In each round, teams typically get to choose to compete in
@@ -23,7 +23,7 @@ is usually disqualified. The remaining teams then begin the next stage in their
 finishing order. This continues until there are three (or sometimes four) teams
 left. A final challenge is then issued, and the winner of that challenge is the
 winner of The Amazing Race. Winners at each individual stage receive a prize
-(typically monetary or travel based), while the overall winners receive $1,000,000.
+(typically monetary or travel based), while the overall winners receive \$1,000,000.
 
 There are also tactical maneuvers available to contestants. For example, a `Fast
 Pass’, which lets a team skip a challenge, is occasionally offered to a single stage
@@ -132,6 +132,26 @@ decreasing likelihood of winning (basically declaring the finishing order).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Code Design}
 
+The following is a list of the code found in each specific file in the project.
+Figure \ref{fig:class_diagram_validate} shows the coupling between files. For more information,
+see the comments in the files.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Try to keep this sorted by filename
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \paragraph{amazing\_race.m}
+  \paragraph{amazing\_race\_segmenter.m}
+  \paragraph{subimage\_distance.m}
+  Holds functions for comparing two binary matrices of the same dimension.
+  \paragraph{subset\_distance\_hierarchical.m}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{ClassDiagramValidate}
+  \caption{Detailed Explanation of Validation Architecture}
+  \label{fig:class_diagram_validate}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Document Information: 
 %    Metadata, revision history, indices, 
@@ -141,9 +161,9 @@ decreasing likelihood of winning (basically declaring the finishing order).
 
 \subsection{Glossary}
 \begin{itemize}
-\item[FEM (Section ~\ref{section:FES}) :] Feature Extraction Module
-\item[FVM (Section ~\ref{section:FES}) :] Feature Validation Module
-\item[PM (Section ~\ref{section:PS}) :] Prediction Module
+\item[] \textbf{FEM (Section ~\ref{section:FES})} : Feature Extraction Module
+\item[] \textbf{FVM (Section ~\ref{section:FES})} : Feature Validation Module
+\item[] \textbf{PM (Section ~\ref{section:PS})} : Prediction Module
 \end{itemize}
 
 \subsection{Document History}

@@ -1,7 +1,7 @@
 % INPUT: cluster_function should take a vector of strings representing the
 % names of the (Amazing Race) image files to be clustered. It also takes
 % the directory name containing the image files, option to determine which
-% clustering function to use based on seasonal changes in text, and number
+% image cropper to use based on seasonal changes in text, and number
 % of clusters.
 % OUTPUT: It should return the cluster membership of the image files
 
