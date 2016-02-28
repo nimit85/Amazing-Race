@@ -13,7 +13,8 @@ classdef ClassifyClusterController < handle
     end
    
     methods
-        function obj = ClassifyClusterController(ClassifyGUI, ClassifyModel, team_list)
+        function obj = ClassifyClusterController(ClassifyGUI, ...
+                ClassifyModel, team_list)
             obj.gui = ClassifyGUI;
             obj.model = ClassifyModel;
             obj.teams = team_list;
@@ -67,7 +68,7 @@ classdef ClassifyClusterController < handle
             obj.gui.h_bnext.Callback = {@obj.next_Callback, 1};
         end
         
-        function next_Callback(obj, unused_src, unused_evt, delta)           
+        function next_Callback(obj, ~, ~, delta)           
             I = imread(char(strcat(obj.model.file_path, ...
                         '/', obj.model.getNext(delta))));
             imshow(I, 'Parent', obj.imax);              

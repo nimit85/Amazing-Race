@@ -7,12 +7,16 @@ classdef AmazingController < handle
     properties
         gui
         model
+        
+        current_image_preview_index
     end
     
     methods
         function obj = AmazingController(gui, model)
             obj.gui = gui;
             obj.model = model;
+            
+            current_image_preview_index = -1;
         end
         
         function register_callbacks(obj)
@@ -29,6 +33,13 @@ classdef AmazingController < handle
             obj.gui.h_bloadS22.Callback = {@obj.s22_Callback};
             obj.gui.h_bloadS23.Callback = {@obj.s23_Callback};
             obj.gui.h_bloadS24.Callback = {@obj.s24_Callback};
+            
+            obj.gui.h_tresults.CellSelectionCallback = ...
+                {@obj.selectfile_Callback};
+            obj.gui.h_bprevimage.Callback = ...
+                {@obj.prevfilepreview_Callback};
+            obj.gui.h_bnextimage.Callback = ...
+                {@obj.nextfilepreview_Callback};
         end
         
         %% Callback for user choosing working directory - causes
@@ -41,9 +52,11 @@ classdef AmazingController < handle
             obj.model.directory.sortImages();
             obj.gui.h_tresults.Data = obj.model.directory.images';
             
+            obj.gui.h_tdirnotice.String = obj.model.directory.path;
             [~, team_count] = size(obj.model.teams);
             for i = 1:team_count
-                obj.model.teams{i}.membership = zeros(size(obj.model.directory.images));
+                obj.model.teams{i}.membership = ...
+                    zeros(size(obj.model.directory.images));
             end
         end
         
@@ -55,12 +68,43 @@ classdef AmazingController < handle
             if ( size(new_team_name) == 0 )
                 return;
             end
-            obj.model.AddTeam(new_team_name, size(obj.model.directory.images));
+            obj.model.AddTeam(new_team_name, ...
+                size(obj.model.directory.images));
             obj.UpdateTeamData() % EXTREMELY inefficient, but this 
                                  % project needs to get got
 
             % Clears input box
             obj.gui.h_eteam.String = '';
+        end
+        
+        %% User selects a file in directory tab
+        function selectfile_Callback(obj, ~, event)
+            obj.current_image_preview_index = event.Indices(1);
+            I = imread(char(strcat(obj.model.directory.path, '/', ...
+                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            imshow(I, 'Parent', obj.gui.h_aimagepreview);
+        end
+        
+        function nextfilepreview_Callback(obj, ~, ~)
+            table_size = size(obj.gui.h_tresults.Data);
+            
+            obj.current_image_preview_index = ...
+                mod(obj.current_image_preview_index + 1, table_size(1));
+            
+            I = imread(char(strcat(obj.model.directory.path, '/', ...
+                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            imshow(I, 'Parent', obj.gui.h_aimagepreview);
+        end
+        
+        function prevfilepreview_Callback(obj, ~, ~)
+            table_size = size(obj.gui.h_tresults.Data);
+            
+            obj.current_image_preview_index = ...
+                mod(obj.current_image_preview_index - 1, table_size(1));
+            
+            I = imread(char(strcat(obj.model.directory.path, '/', ...
+                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            imshow(I, 'Parent', obj.gui.h_aimagepreview);
         end
         
         %% User want to delete a team
@@ -101,7 +145,8 @@ classdef AmazingController < handle
                 
             [~, stat_count] = size(obj.model.teams{1}.stats);
             for i = 1:team_count
-                obj.gui.h_tfeatures.Data{i, 1} = char(obj.model.teams{i}.name);
+                obj.gui.h_tfeatures.Data{i, 1} = ...
+                    char(obj.model.teams{i}.name);
                 for j = 2:1 + stat_count
                     obj.gui.h_tfeatures.Data{i, j} = ...
                         obj.model.teams{i}.stats(j - 1);
@@ -114,7 +159,7 @@ classdef AmazingController < handle
         function cis_Callback(obj, ~, ~)
             % Full Screenshots
             G = Graph(obj.model, (570:600), (250:750), 0.7, 120);
-            % (Pre-trimmed data) G = Graph(obj.model, (20:50), (50:600), 0.7, 120);
+            
             partition = CIS(G);
             [~, xp] = size(partition);
             if ( xp == 0 )
