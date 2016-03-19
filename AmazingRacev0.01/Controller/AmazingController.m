@@ -49,6 +49,10 @@ classdef AmazingController < handle
                 {@obj.prevfilepreview_Callback};
             obj.gui.h_bnextimage.Callback = ...
                 {@obj.nextfilepreview_Callback};
+            
+            obj.gui.h_baddstat.Callback = {@obj.addstat_Callback};
+            obj.gui.h_bremovestat.Callback = {@obj.removestat_Callback};
+            obj.gui.h_breload.Callback = {@obj.loadstats_Callback};
         end
         
         %% Callback for user choosing working directory - causes
@@ -395,6 +399,36 @@ classdef AmazingController < handle
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
             end
+        end
+        
+        function addstat_Callback(obj, ~, ~)
+            [x, y] = size(obj.gui.h_tfeatures.Data);
+            
+            for i = 1:x
+                obj.gui.h_tfeatures.Data{i, y+1} = 0;
+            end
+            
+            obj.gui.h_tfeatures.ColumnEditable = ...
+            [obj.gui.h_tfeatures.ColumnEditable true];
+        end
+        
+        function removestat_Callback(obj, ~, ~)
+            col = str2num(obj.gui.h_estatcolumn.String);
+            [~, y] = size(obj.gui.h_tfeatures.Data);
+            if isempty(col) || (col < 2) || (col > y)
+                warndlg('Invalid Column');
+                return
+            end
+            
+            obj.gui.h_tfeatures.Data(:, col) = [];
+        end
+        
+        function loadstats_Callback(obj, ~, ~)
+            file_dir = uigetdir();
+            feature_file = dir([obj.model.directory.path, '/features.mat']);
+            load([file_dir '/' feature_file.name]);
+            features
+            obj.gui.h_tfeatures.Data = features;
         end
     end
 end
