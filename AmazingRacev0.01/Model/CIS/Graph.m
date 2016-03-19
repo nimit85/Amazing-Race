@@ -13,12 +13,18 @@
 %                       (white pixels in our case)
 %      100-120
 %
+% @param min_white_pixels Threshold for the minimum number of pixels that
+%                need to be 'white' (value about white_thresh), in order
+%                for the image to be considered for clustering 
+%
+%       1000
+%
 % @return G An edge-list representation of a network. G['A'] holds the
 %           neighbors of the node 'A'. If 'B' is a neighbor, G['A']['B']
 %           holds the similarity value of the images (weight of the edge)
 %}
 function G = Graph( model, bound_x, bound_y, ...
-    similarity_threshold, white_thresh )    
+    similarity_threshold, white_thresh, min_white_pixels )    
     % Goes through files in directory
     [~, file_size] = size(model.directory.images);
 
@@ -30,20 +36,29 @@ function G = Graph( model, bound_x, bound_y, ...
     % Reads files, crops them, removes large/small areas of picture and
     %     saves them in memory (costly for large sets?) Also caches the 
     %     number of white pixels in each screenshot of interest.
+    h_wait = waitbar(0, 'Reading And Analyzing Files');
     for i = 1:file_size
-        disp([num2str(i) '...'])
+        if mod(i, 100) == 0
+            waitbar(i / file_size, h_wait);
+        end
         I = imread([model.directory.path '/' model.directory.images{i}]);
         I = remove_large_and_small(I(bound_x, bound_y) > white_thresh);
         loaded_files{i} = I;
         file_density(i) = sum(sum(I));
     end
-
+    
+    
     % Goes through all pairs of images and calculates the similarity.
     % If they are similar enough, an edge is added to the graph.
+    
+    waitbar(0, h_wait, 'Calculating Similarities for Graph')
     for i = 1:file_size
+        if mod(i,100) == 0
+            waitbar(i / file_size, h_wait);
+        end
         % Skips screenshots that don't have enough whitespace in them for 
         %    text (arbitrary threshold)
-        if (sum(sum(loaded_files{i})) < 1000)
+        if (sum(sum(loaded_files{i})) < min_white_pixels)
             continue            
         end
         for j = i+1:file_size
@@ -69,6 +84,8 @@ function G = Graph( model, bound_x, bound_y, ...
             end
         end
     end
+    
+    close(h_wait);
 end
 
 %{

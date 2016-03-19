@@ -75,8 +75,8 @@ classdef ClassifyClusterController < handle
             obj.team_button_pressed = false;
         end
         
-        function ResetCluster(obj, cluster)
-            obj.model.ResetCluster(cluster);
+        function ResetCluster(obj)
+            obj.model.ResetCluster();
             
             I = imread(char(strcat(obj.model.file_path, ...
                         '/', obj.model.getNext(0))));
@@ -92,7 +92,7 @@ classdef ClassifyClusterController < handle
             obj.gui.fig.Visible = 'off';
         end
         
-        function teambutton_Callback(obj, unused_src, unused_evt, team)
+        function teambutton_Callback(obj, ~, ~, team)
             new_mem = zeros(size(obj.model.all_files));
             
             [~, iy] = size(obj.model.all_files);
@@ -105,10 +105,22 @@ classdef ClassifyClusterController < handle
             
             team.membership = team.membership | new_mem;
             obj.team_button_pressed = true;
+            
+            obj.Next();
         end
         
-        function noteam_Callback(obj, unused_src, unused_evt)
+        function noteam_Callback(obj, ~, ~)
             obj.team_button_pressed = true;
+            
+            obj.Next();
+        end
+
+        function Next(obj)
+            if obj.model.current_cluster + 1 > obj.model.max_cluster
+              close(obj.gui.fig); %%Done  
+            else 
+                obj.ResetCluster();
+            end
         end
     end
 end

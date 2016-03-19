@@ -34,6 +34,15 @@ classdef AmazingController < handle
             obj.gui.h_bloadS23.Callback = {@obj.s23_Callback};
             obj.gui.h_bloadS24.Callback = {@obj.s24_Callback};
             
+            obj.gui.h_etargettop.Callback = ...
+                {@obj.changeBoundaries_Callback};
+            obj.gui.h_etargetbot.Callback = ...
+                {@obj.changeBoundaries_Callback};
+            obj.gui.h_etargetleft.Callback = ...
+                {@obj.changeBoundaries_Callback};
+            obj.gui.h_etargetright.Callback = ...
+                {@obj.changeBoundaries_Callback};
+            
             obj.gui.h_tresults.CellSelectionCallback = ...
                 {@obj.selectfile_Callback};
             obj.gui.h_bprevimage.Callback = ...
@@ -75,6 +84,9 @@ classdef AmazingController < handle
 
             % Clears input box
             obj.gui.h_eteam.String = '';
+            
+            % Updates feedback panel
+            obj.UpdateTeamFeedback();
         end
         
         %% User selects a file in directory tab
@@ -127,14 +139,37 @@ classdef AmazingController < handle
             
             % Clears input box
             obj.gui.h_eteam.String = '';
+            
+            % Updates feedback panel
+            obj.UpdateTeamFeedback();            
         end
         
         function clearteam_Callback(obj, ~, ~)
             obj.model.teams = {};
             obj.gui.h_tfeatures.Data = {};
+            % Updates feedback panel
+            obj.UpdateTeamFeedback();
         end
         
-        %% Refreshes the team indormation panel of the gui
+        %% Refreshes the team information panel of the gui
+        function UpdateTeamFeedback(obj)
+            new_team_string = 'Teams: ';
+            
+            [teamnum, ~] = size(obj.gui.h_tfeatures.Data);
+            
+            if teamnum >= 1
+                new_team_string = [new_team_string, ' ', ...
+                    obj.gui.h_tfeatures.Data{1,1}];
+            end
+                
+            for i = 2:teamnum
+                new_team_string = [new_team_string ', ' ...
+                    obj.gui.h_tfeatures.Data{i, 1}];
+            end
+            
+            obj.gui.h_tteams.String = new_team_string;
+        end
+        
         function UpdateTeamData(obj)
             obj.gui.h_tfeatures.Data = {};
           
@@ -157,8 +192,76 @@ classdef AmazingController < handle
         %% Calls the clustering function and uses user prompts to designate
         %%    which teams are associated with which clusters.
         function cis_Callback(obj, ~, ~)
-            % Full Screenshots
-            G = Graph(obj.model, (570:600), (250:750), 0.7, 120);
+            % Full Screenshots      
+            top = str2num(obj.gui.h_etargettop.String);
+            if isempty(top)
+                top = 570;
+                warndlg('Invalid Top Value, using default (570)');
+            end
+            
+            bot = str2num(obj.gui.h_etargetbot.String);
+            if isempty(bot)
+                bot = 600;
+                warndlg('Invalid Bottom Value, using default (600)');
+            end
+            
+            left = str2num(obj.gui.h_etargetleft.String);
+            if isempty(left)
+                left = 250;
+                warndlg('Invalid Left Value, using default (250)');
+            end
+            
+            right = str2num(obj.gui.h_etargetright.String);
+            if isempty(right)
+                right = 750;
+                warndlg('Invalid Right Value, using default (750)');
+            end
+            
+            table_size = size(obj.gui.h_tresults.Data);
+             if table_size == 0
+                return        
+             end
+             
+             I = imread(char(strcat(obj.model.directory.path, '/', ...
+                 obj.gui.h_tresults.Data{1,1})));
+             [x, y, ~] = size(I);
+
+             if ( top > x ) || (right > y)
+                 warndlg('Boundary Overflow');
+                 return
+             end
+             
+             if ( top < 0 ) || ( bot < 0 )
+                 warndlg('Boudnary Underflow');
+                 return
+             end
+                 
+             
+            if ( top > bot ) || (right < left)
+                warndlg('Invalid Boundaries');
+                return
+            end
+            
+            lambda = str2num(obj.gui.h_elambda.String);
+            if isempty(lambda)
+                lambda = 0.7;
+                warndlg('Invalid Lambda Value, using default (0.7)');
+            end
+            
+            whitethresh = str2num(obj.gui.h_ewthreshold.String);
+            if isempty(whitethresh)
+                whitethresh = 120;
+                warndlg('Invalid Whitethresh Value, using default (120)');
+            end
+            
+            min_white_pixels = str2num(obj.gui.h_ewmin.String);
+            if isempty(min_white_pixels)
+                min_white_pixels = 1000;
+                warndlg('Invalid MinWhitePixels Value, using default (1000)');
+            end
+            
+            G = Graph(obj.model, (top:bot), (left:right), lambda, ...
+                whitethresh, min_white_pixels);
             
             partition = CIS(G);
             [~, xp] = size(partition);
@@ -169,24 +272,71 @@ classdef AmazingController < handle
             % Directory probably could have been passed whole
             c_team = ClassifyClusterController( ...
                     ClassifyClusterGUI(), ClassifyClusterModel( ...
-                    partition{1}, obj.model.directory.path, ... 
+                    partition, obj.model.directory.path, ... 
                     obj.model.directory.images), obj.model.teams);
             c_team.register_callbacks();
             c_team.show();
-            while (~c_team.team_button_pressed)
-                while ( waitforbuttonpress ) 
-                end
-            end
-                
-            for i = 2:xp
-                c_team.ResetCluster(partition{i});
-                while (~c_team.team_button_pressed)
-                    while ( waitforbuttonpress ) 
-                    end
-                end
+            uiwait(c_team.gui.fig);
+        end
+        
+        function changeBoundaries_Callback(obj, ~, ~)
+          table_size = size(obj.gui.h_tresults.Data);
+          if table_size == 0
+              return        
+          end
+            
+          if isempty(obj.current_image_preview_index)
+              return
+          end
+            
+          I = imread(char(strcat(obj.model.directory.path, '/', ...
+              obj.gui.h_tresults.Data{obj.current_image_preview_index, ...
+              1})));
+          
+          top = str2num(obj.gui.h_etargettop.String);
+            if isempty(top)
+                top = 570;
+                warndlg('Invalid Top Value, using default (570)');
             end
             
-            c_team.hide();
+            bot = str2num(obj.gui.h_etargetbot.String);
+            if isempty(bot)
+                bot = 600;
+                warndlg('Invalid Bottom Value, using default (600)');
+            end
+            
+            left = str2num(obj.gui.h_etargetleft.String);
+            if isempty(left)
+                left = 250;
+                warndlg('Invalid Left Value, using default (250)');
+            end
+            
+            right = str2num(obj.gui.h_etargetright.String);
+            if isempty(right)
+                right = 750;
+                warndlg('Invalid Right Value, using default (750)');
+            end
+            
+            if (left < right) && (top < bot)
+               [xx, yy, ~] = size(I);
+               tt = max(0, top - 5);
+               bb = min(xx, bot + 5);
+               ll = max(0, left - 5);
+               rr = min(yy, right + 5);
+               I(tt:top, left:right, 1:2) = 255;
+               I(bot:bb, left:right, 1:2) = 255;
+               I(top:bot, ll:left, 1:2) = 255;
+               I(top:bot, right:rr, 1:2) = 255;
+               
+               I(top, left:right, 3) = 0;
+               I(bot, left:right, 3) = 0;
+               I(top:bot, left, 3) = 0;
+               I(top:bot, right, 3) = 0;
+            else
+               warndlg('Invalid Boundaries for preview');
+            end
+          
+          imshow(I, 'Parent', obj.gui.h_acpreview);
         end
         
         function calcstats_Callback(obj, ~, ~)
@@ -200,6 +350,7 @@ classdef AmazingController < handle
         end
         
         function s19_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season19TeamList
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
@@ -207,6 +358,7 @@ classdef AmazingController < handle
         end
         
         function s20_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season20TeamList
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
@@ -214,6 +366,7 @@ classdef AmazingController < handle
         end
         
         function s21_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season21TeamList
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
@@ -221,6 +374,7 @@ classdef AmazingController < handle
         end
         
         function s22_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season22TeamList
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
@@ -228,6 +382,7 @@ classdef AmazingController < handle
         end
         
         function s23_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season23TeamList
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
@@ -235,6 +390,7 @@ classdef AmazingController < handle
         end
         
         function s24_Callback(obj, ~, ~)
+            obj.clearteam_Callback();
             for team = AmazingUtility.Season24TeamList 
                 obj.gui.h_eteam.String = team;
                 obj.addteam_Callback();
