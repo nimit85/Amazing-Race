@@ -56,8 +56,7 @@ classdef ClassifyClusterController < handle
                 end
             end
             
-            I = imread(char(strcat(obj.model.file_path, ...
-                        '/', obj.model.getNext(0))));
+            I = imread(char(strcat(obj.model.getNext(0))));
             imshow(I, 'Parent', obj.imax); 
             
             obj.team_button_pressed = false;
@@ -69,8 +68,7 @@ classdef ClassifyClusterController < handle
         end
         
         function next_Callback(obj, ~, ~, delta)           
-            I = imread(char(strcat(obj.model.file_path, ...
-                        '/', obj.model.getNext(delta))));
+            I = imread(char(strcat(obj.model.getNext(delta))));
             imshow(I, 'Parent', obj.imax);              
             obj.team_button_pressed = false;
         end
@@ -78,8 +76,7 @@ classdef ClassifyClusterController < handle
         function ResetCluster(obj)
             obj.model.ResetCluster();
             
-            I = imread(char(strcat(obj.model.file_path, ...
-                        '/', obj.model.getNext(0))));
+            I = imread(char(obj.model.getNext(0)));
             imshow(I, 'Parent', obj.imax); 
             obj.team_button_pressed = false;
         end
@@ -95,8 +92,8 @@ classdef ClassifyClusterController < handle
         function teambutton_Callback(obj, ~, ~, team)
             new_mem = zeros(size(obj.model.all_files));
             
-            [~, iy] = size(obj.model.all_files);
-            for i = 1:iy
+            [ix, ~] = size(obj.model.all_files);
+            for i = 1:ix
                 if ismember(obj.model.all_files{i}, obj.model.file_list)
                     new_mem(i) = 1;
                 end

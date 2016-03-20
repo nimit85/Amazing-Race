@@ -26,7 +26,7 @@
 function G = Graph( model, bound_x, bound_y, ...
     similarity_threshold, white_thresh, min_white_pixels )    
     % Goes through files in directory
-    [~, file_size] = size(model.directory.images);
+    [file_size, ~] = size(model.directory.images);
 
     % Tracking data structures
     G = containers.Map;
@@ -41,7 +41,7 @@ function G = Graph( model, bound_x, bound_y, ...
         if mod(i, 100) == 0
             waitbar(i / file_size, h_wait);
         end
-        I = imread([model.directory.path '/' model.directory.images{i}]);
+        I = imread([model.directory.images{i}]);
         I = remove_large_and_small(I(bound_x, bound_y) > white_thresh);
         loaded_files{i} = I;
         file_density(i) = sum(sum(I));

@@ -17,7 +17,9 @@ classdef Directory < handle
            obj.images = {};
         end
         
+        
         % Reads the screenshots from a directory
+        %%% DEPRECATED
         function status = LoadDirectory( obj, directory_name )
             obj.path = directory_name;
             obj.images = obj.getTIF();
@@ -28,6 +30,13 @@ classdef Directory < handle
                 obj.sortImages();
                 status = AmazingUtility.SUCCESS;
             end
+        end
+        
+        function status = LoadImageList(obj, config)
+            R = readtable(config);
+            obj.images = table2cell(R(:,1));
+            
+            status = AmazingUtility.SUCCESS;
         end
         
         % Retrieves the files in the directory that end with the tif

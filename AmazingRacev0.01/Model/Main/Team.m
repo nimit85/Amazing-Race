@@ -27,7 +27,7 @@ classdef Team < handle
             % Total # of screenshots for the team
             obj.stats(1) = sum(obj.membership);
             
-            [~, n] = size(obj.membership);
+            [n, ~] = size(obj.membership);
             
             starts = [];
             next_start = 1;

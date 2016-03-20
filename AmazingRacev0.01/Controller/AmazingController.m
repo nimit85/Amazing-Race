@@ -20,7 +20,8 @@ classdef AmazingController < handle
         end
         
         function register_callbacks(obj)
-            obj.gui.h_bdir.Callback = {@obj.choosedir_Callback};
+            obj.gui.h_bdir.Callback = {@obj.setdir_Callback};
+            obj.gui.h_bcfg.Callback = {@obj.loadcfg_Callback};
             obj.gui.h_baddteam.Callback = {@obj.addteam_Callback};
             obj.gui.h_bdropteam.Callback = {@obj.dropteam_Callback};
             obj.gui.h_bcis.Callback = {@obj.cis_Callback};
@@ -57,6 +58,7 @@ classdef AmazingController < handle
         
         %% Callback for user choosing working directory - causes
         %%     popup
+        %% DEPRECATED
         function choosedir_Callback(obj, ~, ~)            
             obj.model.directory.path = uigetdir(...
                 '/home/james/Documents/Amazing-Race-Video/');
@@ -73,6 +75,34 @@ classdef AmazingController < handle
             end
         end
         
+        function setdir_Callback(obj, ~, ~)
+            obj.model.directory.path = uigetdir();
+            obj.gui.h_tdirnotice.String = obj.model.directory.path;
+        end
+        
+        function loadcfg_Callback(obj, ~, ~)
+            [file, dir, ~] = uigetfile();
+            obj.model.directory.LoadImageList([dir '/' file]);
+            
+            obj.gui.h_tresults.Data = obj.model.directory.images;
+            
+            [d, ~] = size(obj.gui.h_tresults.Data);
+            for i = 1:d
+                slashes = strfind(obj.gui.h_tresults.Data{i, 1}, '/');
+                [~, y] = size(slashes);
+                
+                if y ~= 0
+                    obj.gui.h_tresults.Data{i, 1} = ...
+                        obj.gui.h_tresults.Data{i, 1}(slashes(y) + 1:end);
+                end
+            end
+            
+            [~, team_count] = size(obj.model.teams);
+            for i = 1:team_count
+                obj.model.teams{i}.membership = ...
+                    zeros(size(obj.model.directory.images));
+            end
+        end
         %% User wants to add a new team
         function addteam_Callback(obj, ~, ~)
             % Checks for empty team name before added
@@ -96,8 +126,8 @@ classdef AmazingController < handle
         %% User selects a file in directory tab
         function selectfile_Callback(obj, ~, event)
             obj.current_image_preview_index = event.Indices(1);
-            I = imread(char(strcat(obj.model.directory.path, '/', ...
-                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            I = imread(char(strcat(obj.model.directory.images{...
+                obj.current_image_preview_index, 1})));
             imshow(I, 'Parent', obj.gui.h_aimagepreview);
         end
         
@@ -107,8 +137,8 @@ classdef AmazingController < handle
             obj.current_image_preview_index = ...
                 mod(obj.current_image_preview_index + 1, table_size(1));
             
-            I = imread(char(strcat(obj.model.directory.path, '/', ...
-                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            I = imread(char(strcat(obj.model.directory.images{...
+                obj.current_image_preview_index, 1})));
             imshow(I, 'Parent', obj.gui.h_aimagepreview);
         end
         
@@ -118,8 +148,8 @@ classdef AmazingController < handle
             obj.current_image_preview_index = ...
                 mod(obj.current_image_preview_index - 1, table_size(1));
             
-            I = imread(char(strcat(obj.model.directory.path, '/', ...
-                obj.gui.h_tresults.Data{obj.current_image_preview_index, 1})));
+            I = imread(char(strcat(obj.model.directory.images{...
+                obj.current_image_preview_index, 1})));
             imshow(I, 'Parent', obj.gui.h_aimagepreview);
         end
         
@@ -226,8 +256,7 @@ classdef AmazingController < handle
                 return        
              end
              
-             I = imread(char(strcat(obj.model.directory.path, '/', ...
-                 obj.gui.h_tresults.Data{1,1})));
+             I = imread(char(obj.model.directory.images{1,1}));
              [x, y, ~] = size(I);
 
              if ( top > x ) || (right > y)
@@ -293,9 +322,8 @@ classdef AmazingController < handle
               return
           end
             
-          I = imread(char(strcat(obj.model.directory.path, '/', ...
-              obj.gui.h_tresults.Data{obj.current_image_preview_index, ...
-              1})));
+          I = imread(char(strcat(obj.model.directory.images{...
+              obj.current_image_preview_index, 1})));
           
           top = str2num(obj.gui.h_etargettop.String);
             if isempty(top)
